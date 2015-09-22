@@ -9,20 +9,22 @@
 ////////////////////////////////////////////////////////////
 // Rainbow ver 0.0.1a
 // author: Gordon Yip
-// licence: MIT
 
 (function($){
 	'use strict';
 
 	$.fn.rainbow = function(options) {
 		// func options
-		var settings = $.extend({
+		var defaults = {
 			phaseShift: 2,
 			brightness: 128,
 			steps: null,
 			animate: true,
-			period: 3
-		}, options);
+			period: 3,	// controll the animation speed
+			mode: null
+		}
+		var settings = $.extend( defaults, options || {} );
+
 
 		// constant
 		var ps = settings.phaseShift;
@@ -30,6 +32,16 @@
 		var amp = 255 - brightness;
 		var _2pi = 2 * Math.PI;
 		var _period = (settings.period > 0) ? settings.period : 0;
+		var _mode = function() {
+			switch(settings.mode) {
+				case 'steppy':
+					return 'cubic-bezier(1,0,0,1)';
+					break;
+				case 'linear':
+				default:
+					return 'linear';
+			}
+		}
 
 		var _genColorString = function (array) {
 			var a = [3];
@@ -86,7 +98,7 @@
 				}
 				colorArray[i] = _genColorString(ca);
 				_class += '._r_e'+ index + '_c' + i + '{color:'+ _genColorString(ca);
-				_class += (settings.animate) ? ';animation:'+'r_kf_'+index+'c_'+i+' '+ period + 's linear infinite;}' : ';}';
+				_class += (settings.animate) ? ';animation:'+'r_kf_'+index+'c_'+i+' '+ period + 's '+ _mode() +' infinite;}' : ';}';
 				str += '<font class="_r_e'+ index + '_c'+ i +'">'+text[i]+'</font>';
 			}
 			if (settings.animate)
