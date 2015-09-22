@@ -28,3 +28,4 @@ This is a small jQuery plugin use for text decoration.
 			`steps`			 | `null`        | ``              |
 			`animate`		 | `true`        | `boolean`       |
 			`period`		 | `3`           | `speed cntl`    |
+			`mode`       | `linear`      | `steppy`        |
