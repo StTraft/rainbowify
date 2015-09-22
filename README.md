@@ -19,3 +19,12 @@ This is a small jQuery plugin use for text decoration.
 	```javascript
 	$("#element").rainbow();
 	```
+4. Options:
+
+			Option  		 | Default Value | Avaliable Value |
+			------------ | ------------- | --------------- |
+			`phaseShift` | `2`           | `0 ~ 2PI`       |
+			`brightness` | `128`         | `0 ~ 255`       |
+			`steps`			 | `null`        | ``              |
+			`animate`		 | `true`        | `boolean`       |
+			`period`		 | `3`           | `speed cntl`    |
