@@ -11,27 +11,26 @@
 // author: Gordon Yip
 
 (function($){
-	'use strict';
+
+	var rainbow_index = 0;
 
 	$.fn.rainbow = function(options) {
 		// func options
 		var defaults = {
-			phaseShift: 2,
+			phase: [4.4,2.9,0.3],
 			brightness: 128,
-			steps: null,
-			animate: true,
-			period: 3,	// controll the animation speed
+			//steps: null,
+			animate: false,
+			reverse: false,
+			duration: 2,	// controll the animation duration
 			mode: null
 		}
 		var settings = $.extend( defaults, options || {} );
 
 
 		// constant
-		var ps = settings.phaseShift;
-		var brightness = settings.brightness;
-		var amp = 255 - brightness;
+		var _120deg = _2pi / 3;
 		var _2pi = 2 * Math.PI;
-		var _period = (settings.period > 0) ? settings.period : 0;
 		var _mode = function() {
 			switch(settings.mode) {
 				case 'steppy':
@@ -41,6 +40,29 @@
 				default:
 					return 'linear';
 			}
+		}
+
+		var _deg2radian = function(deg){
+			// params: deg -- can either be number(radian) or string with number and surfix 'deg' to indicate degree
+			if (deg instanceof Array) {
+				var radian = [deg.length];
+				for (var i=0; i < deg.length; i++) {
+					if (typeof deg[i] === "number")
+						radian[i] = deg[i];
+					else
+						radian[i] = (deg[i].indexOf('deg') != -1) ? radian[i] = Math.round(parseInt(deg[i]) * _2pi * 100 / 360) / 100 : parseInt(deg[i]);
+				}
+			}
+			else
+				var radian = (deg.indexOf('deg') != -1) ? Math.round(parseInt(deg) * _2pi * 100 / 360) / 100 : deg;
+			return radian;
+		}
+
+		var _waveFunc = function(freq, x, phase, amp, offset) {
+			// main sin function for color rotation
+			if (typeof freq == 'undefined')
+				freq = 1;
+			return Math.round(-1 * amp * Math.sin(freq * x + phase) + offset);
 		}
 
 		var _genColorString = function (array) {
@@ -61,19 +83,26 @@
 			return rgb;  // array
 		}
 
-		var _rotate = function(a, t = 1) {
+		var _rotate = function(a, t, alt) {
+			if (typeof t == 'undefined')
+				t = 1;
+			if (typeof alt == 'undefined')
+				alt = false;
 			var array = a.slice(0);
 			while (t--) {
-				var temp = array.shift();
-				array.push(temp);
+				var temp = (alt) ? array.pop() : array.shift();
+				(alt) ? array.unshift(temp) : array.push(temp);
 			}
 			return array;
 		}
 
-		var _keyframes = function(arr, name) {
+		var _keyframes = function(arr, name, prefix) {
+			if (typeof prefix == 'undefined')
+				prefix = '';
 			var n = arr.length;
 			var a = arr;
-			var kfs = '\@keyframes '+name+'{';
+			var _wk = prefix;
+			var kfs = '\@'+_wk+'keyframes '+name+'{';
 			for (var i = 0; i < n; i++) {
 				kfs += Math.round(i*10000/n)/100 + '%{color:'+ a[i] +';}'
 			}
@@ -83,32 +112,35 @@
 
 		return this.each(function(index, element){
 			// func body goes here
+			var ps = _deg2radian(settings.phase);
+			var brightness = settings.brightness;
+			var amp = Math.min( Math.abs(255 - brightness), Math.abs(0 - brightness) );
 			var text = $(this).text().split("");
 			var ca = [];
 			var colorArray = [];
 			var str = '';
 			var _class = '<style type="text/css">';
 			var frequency = (settings.steps) ? _2pi / settings.steps : _2pi / text.length;
-			var period = Math.round(_period*100 / text.length)/10;
+			var duration = (settings.duration > 0) ? settings.duration : 0;
 
 			for (var i = 0; i < text.length; i++) {
 				for (var j = 0; j < 3; j++) {
-					ca[j] = Math.sin(frequency * i + ps * j ) * amp + brightness;
-					ca[j] = Math.abs(Math.round( ca[j]) );
+					ca[j] = _waveFunc(frequency, i, ps[j], amp, brightness); 
 				}
 				colorArray[i] = _genColorString(ca);
-				_class += '._r_e'+ index + '_c' + i + '{color:'+ _genColorString(ca);
-				_class += (settings.animate) ? ';animation:'+'r_kf_'+index+'c_'+i+' '+ period + 's '+ _mode() +' infinite;}' : ';}';
-				str += '<font class="_r_e'+ index + '_c'+ i +'">'+text[i]+'</font>';
+				_class += '._r'+ rainbow_index +'_e'+ index + '_c' + i + '{color:'+ _genColorString(ca);
+				_class += (settings.animate) ? ';animation:'+'r'+rainbow_index+'_kf_'+index+'c_'+i+' '+ duration + 's '+ _mode() +' infinite;}' : ';}';
+				str += '<font class="_r'+ rainbow_index +'_e'+ index + '_c'+ i +'">'+text[i]+'</font>';
 			}
 			if (settings.animate)
 				for (var i = 0; i < text.length; i++ ) 
-					_class += _keyframes(_rotate(colorArray, i), 'r_kf_'+index+'c_'+i);
+					_class += _keyframes(_rotate(colorArray, i, settings.reverse), 'r'+rainbow_index+'_kf_'+index+'c_'+i);
+					_class += _keyframes(_rotate(colorArray, i, settings.reverse), 'r'+rainbow_index+'_kf_'+index+'c_'+i, '-webkit-');
 			_class += '</style>';
 			
 			$('head').append(_class);
 			$(this).html(str);
-
+			rainbow_index++;
 		});
 	}
 }(jQuery));
