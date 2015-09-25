@@ -21,11 +21,13 @@ This is a small jQuery plugin use for text decoration.
 	```
 4. Options:
 
-			Option  		 | Default Value | Avaliable Value |
-			------------ | ------------- | --------------- |
-			`phaseShift` | `2`           | `0 ~ 2PI`       |
-			`brightness` | `128`         | `0 ~ 255`       |
-			`steps`			 | `null`        | ``              |
-			`animate`		 | `true`        | `boolean`       |
-			`period`		 | `3`           | `speed cntl`    |
-			`mode`       | `linear`      | `steppy`        |
+			Option  		 | Default Value   | Avaliable Value             |
+			------------ | --------------- | --------------------------- |
+			`phase`      | [4.4,2.9,0.3]   | 0 ~ 2PI or 0deg ~360deg     |
+			`brightness` | 128             | 0 ~ 255                     |
+			`animate`		 | `false`         | `boolean`                   |
+			`reverse`		 | `false`         | `boolean`                   |
+			`duration`   | 2               |                             |
+			`mode`       | `linear`        | `steppy`, `linear`          |
+
+For more example, please visit (https://rainbowify.herokuapp.com)
